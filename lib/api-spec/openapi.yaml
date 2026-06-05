@@ -1,22 +1,37 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: CollegeCompass API specification
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: auth
+    description: Authentication operations
+  - name: colleges
+    description: College operations
+  - name: courses
+    description: Course operations
+  - name: reviews
+    description: Review operations
+  - name: comparisons
+    description: College comparison operations
+  - name: predictor
+    description: College predictor operations
+  - name: saved
+    description: Saved colleges operations
+  - name: stats
+    description: Aggregated stats/summary
+
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,13 +39,756 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  # ─── Auth ────────────────────────────────────────────────────────────────
+  /auth/signup:
+    post:
+      operationId: signup
+      tags: [auth]
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SignupInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "409":
+          description: Email already in use
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/login:
+    post:
+      operationId: login
+      tags: [auth]
+      summary: Login with email/password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "401":
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/profile:
+    get:
+      operationId: getProfile
+      tags: [auth]
+      summary: Get current user profile
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  # ─── Colleges ────────────────────────────────────────────────────────────
+  /colleges:
+    get:
+      operationId: listColleges
+      tags: [colleges]
+      summary: List colleges with search and filters
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: city
+          in: query
+          schema:
+            type: string
+        - name: type
+          in: query
+          schema:
+            type: string
+        - name: minFees
+          in: query
+          schema:
+            type: integer
+        - name: maxFees
+          in: query
+          schema:
+            type: integer
+        - name: minRating
+          in: query
+          schema:
+            type: number
+        - name: sortBy
+          in: query
+          schema:
+            type: string
+            enum: [name, rating, fees, createdAt]
+        - name: sortOrder
+          in: query
+          schema:
+            type: string
+            enum: [asc, desc]
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CollegeListResponse"
+
+  /colleges/{id}:
+    get:
+      operationId: getCollege
+      tags: [colleges]
+      summary: Get college detail
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CollegeDetail"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  # ─── Courses ─────────────────────────────────────────────────────────────
+  /colleges/{collegeId}/courses:
+    get:
+      operationId: listCourses
+      tags: [courses]
+      summary: List courses for a college
+      parameters:
+        - name: collegeId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Course"
+
+  # ─── Reviews ─────────────────────────────────────────────────────────────
+  /colleges/{collegeId}/reviews:
+    get:
+      operationId: listReviews
+      tags: [reviews]
+      summary: List reviews for a college
+      parameters:
+        - name: collegeId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Review"
+
+    post:
+      operationId: createReview
+      tags: [reviews]
+      summary: Submit a review for a college
+      parameters:
+        - name: collegeId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReviewInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Review"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  # ─── Comparisons ─────────────────────────────────────────────────────────
+  /comparisons:
+    get:
+      operationId: getComparison
+      tags: [comparisons]
+      summary: Compare colleges by IDs
+      parameters:
+        - name: ids
+          in: query
+          required: true
+          schema:
+            type: string
+            description: Comma-separated college IDs (2-3)
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CollegeDetail"
+
+  /comparisons/saved:
+    get:
+      operationId: listSavedComparisons
+      tags: [comparisons]
+      summary: List user's saved comparisons
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SavedComparison"
+
+    post:
+      operationId: saveComparison
+      tags: [comparisons]
+      summary: Save a comparison
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SavedComparisonInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SavedComparison"
+
+  /comparisons/saved/{id}:
+    delete:
+      operationId: deleteSavedComparison
+      tags: [comparisons]
+      summary: Delete a saved comparison
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  # ─── Predictor ───────────────────────────────────────────────────────────
+  /predictor:
+    post:
+      operationId: predictColleges
+      tags: [predictor]
+      summary: Predict colleges based on exam and rank
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PredictorInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PredictorResult"
+
+  # ─── Saved Colleges ───────────────────────────────────────────────────────
+  /saved:
+    get:
+      operationId: listSavedColleges
+      tags: [saved]
+      summary: List user's saved colleges
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/College"
+
+    post:
+      operationId: saveCollege
+      tags: [saved]
+      summary: Save a college
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SaveCollegeInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SavedCollegeRecord"
+        "409":
+          description: Already saved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /saved/{collegeId}:
+    delete:
+      operationId: unsaveCollege
+      tags: [saved]
+      summary: Remove a college from saved list
+      parameters:
+        - name: collegeId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  # ─── Stats ────────────────────────────────────────────────────────────────
+  /stats/summary:
+    get:
+      operationId: getStatsSummary
+      tags: [stats]
+      summary: Platform summary stats
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StatsSummary"
+
+  /stats/top-colleges:
+    get:
+      operationId: getTopColleges
+      tags: [stats]
+      summary: Top rated colleges
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/College"
+
+  /stats/cities:
+    get:
+      operationId: listCities
+      tags: [stats]
+      summary: List all cities with college counts
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CityCount"
+
 components:
   schemas:
     HealthStatus:
       type: object
+      required: [status]
       properties:
         status:
           type: string
-      required:
-        - status
 
+    ErrorResponse:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string
+
+    # ─── Auth ─────────────────────────────────────────────────────────────
+    SignupInput:
+      type: object
+      required: [name, email, password]
+      properties:
+        name:
+          type: string
+          minLength: 2
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 6
+
+    LoginInput:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+
+    AuthResponse:
+      type: object
+      required: [token, user]
+      properties:
+        token:
+          type: string
+        user:
+          $ref: "#/components/schemas/User"
+
+    User:
+      type: object
+      required: [id, name, email, createdAt]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    # ─── College ──────────────────────────────────────────────────────────
+    College:
+      type: object
+      required: [id, name, city, state, type, fees, rating, logoUrl, shortDescription]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        type:
+          type: string
+          description: IIT, NIT, IIIT, Private, Government
+        fees:
+          type: integer
+          description: Annual fees in INR
+        rating:
+          type: number
+        logoUrl:
+          type: ["string", "null"]
+        shortDescription:
+          type: string
+        establishedYear:
+          type: ["integer", "null"]
+        website:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+
+    CollegeDetail:
+      type: object
+      required: [id, name, city, state, type, fees, rating, logoUrl, shortDescription, about, avgPackage, highestPackage, recruiters, courses, reviews]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        type:
+          type: string
+        fees:
+          type: integer
+        rating:
+          type: number
+        logoUrl:
+          type: ["string", "null"]
+        shortDescription:
+          type: string
+        about:
+          type: ["string", "null"]
+        establishedYear:
+          type: ["integer", "null"]
+        website:
+          type: ["string", "null"]
+        avgPackage:
+          type: ["integer", "null"]
+          description: Average placement package in LPA
+        highestPackage:
+          type: ["integer", "null"]
+          description: Highest package in LPA
+        recruiters:
+          type: array
+          items:
+            type: string
+        courses:
+          type: array
+          items:
+            $ref: "#/components/schemas/Course"
+        reviews:
+          type: array
+          items:
+            $ref: "#/components/schemas/Review"
+
+    CollegeListResponse:
+      type: object
+      required: [colleges, total, page, limit, totalPages]
+      properties:
+        colleges:
+          type: array
+          items:
+            $ref: "#/components/schemas/College"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+        totalPages:
+          type: integer
+
+    # ─── Course ───────────────────────────────────────────────────────────
+    Course:
+      type: object
+      required: [id, collegeId, name, duration, fees]
+      properties:
+        id:
+          type: integer
+        collegeId:
+          type: integer
+        name:
+          type: string
+        duration:
+          type: string
+          description: e.g. "4 years"
+        fees:
+          type: integer
+          description: Annual fees in INR
+        description:
+          type: ["string", "null"]
+
+    # ─── Review ───────────────────────────────────────────────────────────
+    Review:
+      type: object
+      required: [id, collegeId, authorName, rating, title, content, createdAt]
+      properties:
+        id:
+          type: integer
+        collegeId:
+          type: integer
+        authorName:
+          type: string
+        rating:
+          type: number
+        title:
+          type: string
+        content:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    ReviewInput:
+      type: object
+      required: [authorName, rating, title, content]
+      properties:
+        authorName:
+          type: string
+          minLength: 2
+        rating:
+          type: number
+          minimum: 1
+          maximum: 5
+        title:
+          type: string
+          minLength: 3
+        content:
+          type: string
+          minLength: 10
+
+    # ─── Comparison ───────────────────────────────────────────────────────
+    SavedComparison:
+      type: object
+      required: [id, userId, collegeIds, label, createdAt]
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        collegeIds:
+          type: array
+          items:
+            type: integer
+        label:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    SavedComparisonInput:
+      type: object
+      required: [collegeIds, label]
+      properties:
+        collegeIds:
+          type: array
+          items:
+            type: integer
+          minItems: 2
+          maxItems: 3
+        label:
+          type: string
+          minLength: 1
+
+    # ─── Predictor ────────────────────────────────────────────────────────
+    PredictorInput:
+      type: object
+      required: [examType, rank]
+      properties:
+        examType:
+          type: string
+          enum: [JEE_MAIN, JEE_ADVANCED, CUET, NEET, CAT, GATE]
+        rank:
+          type: integer
+          minimum: 1
+
+    PredictorResult:
+      type: object
+      required: [college, chance, matchScore]
+      properties:
+        college:
+          $ref: "#/components/schemas/College"
+        chance:
+          type: string
+          enum: [High, Medium, Low]
+        matchScore:
+          type: number
+          description: Score from 0 to 100
+
+    # ─── Saved ────────────────────────────────────────────────────────────
+    SaveCollegeInput:
+      type: object
+      required: [collegeId]
+      properties:
+        collegeId:
+          type: integer
+
+    SavedCollegeRecord:
+      type: object
+      required: [id, userId, collegeId, createdAt]
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        collegeId:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+
+    # ─── Stats ────────────────────────────────────────────────────────────
+    StatsSummary:
+      type: object
+      required: [totalColleges, totalCourses, totalReviews, avgRating]
+      properties:
+        totalColleges:
+          type: integer
+        totalCourses:
+          type: integer
+        totalReviews:
+          type: integer
+        avgRating:
+          type: number
+
+    CityCount:
+      type: object
+      required: [city, state, count]
+      properties:
+        city:
+          type: string
+        state:
+          type: string
+        count:
+          type: integer

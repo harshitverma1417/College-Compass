@@ -1,0 +1,347 @@
+# Build a Production-Grade College Discovery Platform (Full Stack)
+
+You are a Senior Full Stack Engineer and Product Architect.
+
+Build a complete production-grade MVP called **CollegeCompass** inspired by Careers360 and Collegedunia.
+
+## Tech Stack Requirements
+
+### Frontend
+
+* React + TypeScript
+* Vite
+* Tailwind CSS
+* shadcn/ui component library
+* React Router
+* TanStack Query
+* Zustand for global state
+
+### Backend
+
+* Node.js
+* Express.js
+* TypeScript
+* REST API architecture
+* JWT Authentication
+
+### Database
+
+* PostgreSQL
+* Prisma ORM
+
+### Deployment Ready
+
+* Docker support
+* Environment variables
+* Production build scripts
+* Seed database support
+
+---
+
+# Full Stack Requirements
+
+Implement complete end-to-end architecture including:
+
+### Frontend Rendering Engine
+
+* Reusable component architecture
+* Responsive layouts
+* Loading states
+* Error boundaries
+* Optimized API state handling
+
+### Backend Runtime
+
+* REST APIs
+* Validation
+* Error handling middleware
+* Pagination support
+* Filtering support
+
+### Database Architecture
+
+Design relational schema for:
+
+Users
+Colleges
+Courses
+Reviews
+Saved Colleges
+Saved Comparisons
+
+Use proper relationships and indexes.
+
+### Authentication
+
+Implement:
+
+* Signup
+* Login
+* JWT Authentication
+* Protected Routes
+* User Profile
+
+---
+
+# Mandatory Features (Choose 4 Features and Build Them Extremely Well)
+
+## Feature 1: College Listing + Search
+
+Create searchable college listings.
+
+Each college contains:
+
+* Name
+* Location
+* Fees
+* Rating
+* Logo
+* Short Description
+
+Implement:
+
+* Search bar
+* Filter by city
+* Filter by fee range
+* Filter by rating
+* Sorting
+* Pagination
+* Infinite scroll option
+
+---
+
+## Feature 2: College Detail Page
+
+Detailed college profile page including:
+
+### Overview
+
+* About College
+* Highlights
+
+### Courses
+
+* Course Name
+* Duration
+* Fees
+
+### Placements
+
+* Average Package
+* Highest Package
+* Recruiters
+
+### Reviews
+
+* Student Reviews
+* Ratings
+
+---
+
+## Feature 3: Compare Colleges
+
+Allow comparison of 2-3 colleges.
+
+Comparison table should include:
+
+* Fees
+* Ratings
+* Location
+* Placement Packages
+* Courses Offered
+
+Features:
+
+* Save Comparison
+* Share Comparison
+* Mobile Responsive Comparison
+
+---
+
+## Feature 4: Predictor Tool
+
+Create a college predictor.
+
+User inputs:
+
+* Exam Type (JEE Main, CUET, NEET etc.)
+* Rank
+
+System returns recommended colleges.
+
+Implement:
+
+* Dataset-driven matching
+* Score-based recommendation logic
+* Ranked results
+
+---
+
+# Additional Required Features (Implement Any Three Properly)
+
+## 1. Multi-Auth Login
+
+Support:
+
+* Email/Password Login
+* Google OAuth Login
+
+Store providers properly in database.
+
+---
+
+## 2. CSV Import
+
+Admin can upload college data through CSV.
+
+Requirements:
+
+* File validation
+* Preview before import
+* Bulk insert
+* Duplicate detection
+
+---
+
+## 3. Mobile + PWA Support
+
+Implement:
+
+* Installable PWA
+* Offline caching
+* Mobile-first UI
+* Lighthouse optimized
+
+---
+
+# Pages Required
+
+## Public Pages
+
+* Home
+* College Listings
+* College Details
+* Compare Colleges
+* Predictor Tool
+* Login
+* Signup
+
+## Protected Pages
+
+* Saved Colleges
+* Saved Comparisons
+* Profile
+
+---
+
+# API Endpoints
+
+Authentication
+
+POST /api/auth/signup
+POST /api/auth/login
+GET /api/auth/profile
+
+Colleges
+
+GET /api/colleges
+GET /api/colleges/:id
+
+Comparison
+
+POST /api/comparisons
+GET /api/comparisons
+
+Predictor
+
+POST /api/predictor
+
+Saved
+
+POST /api/saved
+GET /api/saved
+
+CSV Import
+
+POST /api/admin/import
+
+---
+
+# Seed Data
+
+Generate realistic sample data:
+
+* 50 colleges
+* 200 courses
+* 300 reviews
+
+Include:
+
+* IITs
+* NITs
+* IIITs
+* Private Universities
+
+with realistic fees, ratings, placements and locations.
+
+---
+
+# UI Expectations
+
+Focus heavily on:
+
+* Search UX
+* Filtering UX
+* Comparison Flow
+* Mobile Responsiveness
+* Reusable Components
+* Accessibility
+* Performance
+
+Avoid excessive animations.
+
+Prioritize usability and clean architecture.
+
+---
+
+# Folder Structure
+
+Create proper scalable folder structure:
+
+frontend/
+components/
+pages/
+hooks/
+services/
+store/
+
+backend/
+routes/
+controllers/
+services/
+middleware/
+prisma/
+
+shared/
+types/
+
+---
+
+# Deliverables
+
+Generate:
+
+1. Complete folder structure
+2. Database schema
+3. Prisma models
+4. Backend APIs
+5. Frontend pages
+6. Authentication flow
+7. CSV import system
+8. Google OAuth
+9. PWA setup
+10. Seed scripts
+11. Docker configuration
+12. README with setup instructions
+
+Write production-quality code with comments, validation, security best practices and scalable architecture.

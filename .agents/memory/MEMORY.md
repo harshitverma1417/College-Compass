@@ -1,0 +1,2 @@
+- [CollegeCompass lib rebuild rule](college-compass-lib-rebuild.md) — after any lib/db schema change, must run typecheck:libs before leaf typechecks or server reports missing exports
+- [CollegeCompass auth import path](college-compass-auth-import.md) — setAuthTokenGetter must be imported from the barrel @workspace/api-client-react, not the /custom-fetch subpath
