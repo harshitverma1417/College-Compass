@@ -1,7 +1,12 @@
 import jwt from "jsonwebtoken";
 import type { Request, Response, NextFunction } from "express";
 
-const JWT_SECRET = process.env.SESSION_SECRET ?? "collegecompass-secret";
+if (!process.env.SESSION_SECRET) {
+  throw new Error(
+    "SESSION_SECRET environment variable is required but was not provided.",
+  );
+}
+const JWT_SECRET: string = process.env.SESSION_SECRET;
 
 export function signToken(userId: number): string {
   return jwt.sign({ userId }, JWT_SECRET, { expiresIn: "30d" });
